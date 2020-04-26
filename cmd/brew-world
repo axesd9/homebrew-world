@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+WORLD=${HOMEBREW_PREFIX}/var/world
+FIRST_CLEAN=${WORLD}.checked
+
+list() {
+    COLUMNS=1 column $WORLD
+}
+
+add() {
+    local BREW_LIST=$(brew list)
+    for name in "$@"; do
+        local full_name=$(brew list --versions $name | awk '{print $1}')
+        [ ! -z $full_name ] && [[ $BREW_LIST =~ ${full_name}([[:space:]]|$) ]] && echo $full_name >> $WORLD
+    done
+    sort -uo $WORLD $WORLD
+}
+
+delete() {
+    for name in "$@"; do
+        local full_name=$(brew info $name 2>&1 | head -1 | grep -v Error | awk -F: '{print $1}'| sed -E 's/.*\/(.*)/\1/')
+        [ ! -z $full_name ] && sed -i~ "/^${full_name}$/d" $WORLD
+    done
+    rm -f $WORLD~
+}
+
+install() {
+    brew install "$@" && add "$@"
+}
+
+uninstall() {
+    brew uninstall "$@" && delete "$@" && clean
+}
+
+clean() {
+    [ ! -f $FIRST_CLEAN ] && first_clean
+    local ORPHANS=$(diff $WORLD <(brew leaves | sed -E 's/.*\/(.*)/\1/') | awk '/^>/{print $2}')
+    if [ ! -z "$ORPHANS" ]; then
+        brew uninstall $(echo -n $ORPHANS) && clean
+    fi
+}
+
+destroy() {
+    rm -f $WORLD $FIRST_CLEAN
+}
+
+help() {
+  echo 'Example Usage:'
+  echo '  brew world install FORMULA...'
+  echo '  brew world uninstall FORMULA...'
+  echo '  brew world list'
+  echo '  brew world add FORMULA...'
+  echo '  brew world delete FORMULA...'
+  echo '  brew world clean'
+  echo '  brew world destroy'
+  echo '  brew world help'
+}
+
+error() {
+    echo -e "\x1B[31mError:\x1B[0m Unknown command: $1" >&2
+    return 1
+}
+
+first_clean() {
+    echo -e '\x1B[33mCaution:\x1B[0m Performing first clean operation!'
+    echo -en 'Are you sure? (\x1B[32m[Y]es\x1B[0m to continue): '
+    read answer
+    [[ ! $answer =~ ^[Yy](es)?$ ]] && exit 0
+    touch $FIRST_CLEAN
+}
+
+[ ! -f $WORLD ] && touch $WORLD
+
+case $1 in
+    list)
+        list ;;
+    add)
+        add "${@:2}" ;;
+    delete)
+        delete "${@:2}" ;;
+    install)
+        install "${@:2}" ;;
+    uninstall|rm|remove)
+        uninstall "${@:2}" ;;
+    clean)
+        clean ;;
+    destroy)
+        destroy ;;
+    help|'')
+        help ;;
+    *)
+        error $1 ;;
+esac
