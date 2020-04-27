@@ -72,14 +72,14 @@ first_clean() {
 add_existing_formula() {
     echo "Scanning for installed formulae..."
     for name in $(brew list); do
-        local uses_by=$(brew uses --installed $name)
-        if [[ ! -z $uses_by ]];then
-            echo "${name} may installed by"
-            for formula in $uses_by; do
+        local parents=$(brew uses --installed $name)
+        if [[ ! -z $parents ]];then
+            echo "${name} is automatically installed by"
+            for formula in $parents; do
                 echo " - ${formula}"
             done;
         fi
-        echo -en "Do you want to keep ${name}? [Y/n] "
+        echo -e "Do you want to keep it? [Y/n] "
         read answer
         [[ $answer =~ ^[Yy]?$ ]] && add $name
     done
