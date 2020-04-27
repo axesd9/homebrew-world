@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORLD=${HOMEBREW_PREFIX}/var/world
+WORLD=${HOMEBREW_PREFIX}/var/world-dev
 FIRST_CLEAN=${WORLD}.checked
 
 list() {
@@ -33,7 +33,7 @@ uninstall() {
 }
 
 clean() {
-    [ ! -f $FIRST_CLEAN ] && first_clean
+    [ ! -f $FIRST_CLEAN ] && first_clean && add_existing_formula
     local ORPHANS=$(diff $WORLD <(brew leaves | sed -E 's/.*\/(.*)/\1/') | awk '/^>/{print $2}')
     if [ ! -z "$ORPHANS" ]; then
         brew uninstall $(echo -n $ORPHANS) && clean
@@ -67,6 +67,22 @@ first_clean() {
     read answer
     [[ ! $answer =~ ^[Yy](es)?$ ]] && exit 0
     touch $FIRST_CLEAN
+}
+
+add_existing_formula() {
+    echo "Scanning for installed formula ..."
+    for name in `brew list`; do
+        local uses_by=`brew uses --installed $name`
+        if [[ ! -z $uses_by ]];then
+            echo "$name may installed by"
+            for formula in $uses_by; do
+                echo " - $formula"
+            done;
+        fi
+        echo -en "Do you want to keep $name? [Y/n] "
+        read answer
+        [[ $answer =~ ^[Yy]?$ ]] && add $name
+    done
 }
 
 [ ! -f $WORLD ] && touch $WORLD
