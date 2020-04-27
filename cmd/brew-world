@@ -70,7 +70,7 @@ first_clean() {
 }
 
 add_existing_formula() {
-    echo "Scanning for installed formulae..."
+    echo 'Scanning for installed formulae...'
     for formula in $(brew list); do
         local parents=$(brew uses --installed $formula)
         if [[ ! -z $parents ]]; then
