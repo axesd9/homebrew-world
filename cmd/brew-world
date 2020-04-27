@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORLD=${HOMEBREW_PREFIX}/var/world-dev
+WORLD=${HOMEBREW_PREFIX}/var/world
 FIRST_CLEAN=${WORLD}.checked
 
 list() {
