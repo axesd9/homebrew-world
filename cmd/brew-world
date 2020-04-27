@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-WORLD=${HOMEBREW_PREFIX}/var/world
+WORLD=${WORLD:-${HOMEBREW_PREFIX}/var/world}
 FIRST_CLEAN=${WORLD}.checked
 
 list() {
@@ -79,7 +79,7 @@ add_existing_formula() {
                 echo " - ${formula}"
             done;
         fi
-        echo -e "Do you want to keep it? [Y/n] "
+        echo -en "Do you want to keep \x1B[1m${name}\x1B[0m? [Y/n] "
         read answer
         [[ $answer =~ ^[Yy]?$ ]] && add $name
     done
