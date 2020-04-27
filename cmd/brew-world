@@ -76,7 +76,7 @@ add_existing_formula() {
         if [[ ! -z $parents ]];then
             echo "${name} is automatically installed by"
             for formula in $parents; do
-                echo " - ${formula}"
+                echo "  - ${formula}"
             done;
         fi
         echo -en "Do you want to keep \x1B[1m\x1B[32m${name}\x1B[0m to the world? [y/N] "
