@@ -79,9 +79,9 @@ add_existing_formula() {
                 echo " - ${formula}"
             done;
         fi
-        echo -en "Do you want to keep \x1B[1m${name}\x1B[0m? [Y/n] "
+        echo -en "Do you want to keep \x1B[1m${name}\x1B[0m to the world? [y/N] "
         read answer
-        [[ $answer =~ ^[Yy]?$ ]] && add $name
+        [[ $answer =~ ^[Yy]$ ]] && add $name
     done
 }
 
