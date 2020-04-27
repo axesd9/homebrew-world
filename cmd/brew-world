@@ -79,7 +79,7 @@ add_existing_formula() {
                 echo "  - ${parent_formula}"
             done
         fi
-        echo -en "Do you want to keep \x1B[1;32m${formula}\x1B[0m to the world? [y/N] "
+        echo -en "Do you want to add \x1B[1;32m${formula}\x1B[0m to the world? [y/N] "
         read answer
         [[ $answer =~ ^[Yy]$ ]] && add $formula
     done
