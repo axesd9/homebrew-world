@@ -33,7 +33,7 @@ uninstall() {
 }
 
 clean() {
-    [ ! -f $FIRST_CLEAN ] && first_clean
+    [ ! -f $FIRST_CLEAN ] && first_clean && add_existing_formulae
     local ORPHANS=$(diff $WORLD <(brew leaves | sed -E 's/.*\/(.*)/\1/') | awk '/^>/{print $2}')
     if [ ! -z "$ORPHANS" ]; then
         brew uninstall $(echo -n $ORPHANS) && clean
@@ -67,6 +67,22 @@ first_clean() {
     read answer
     [[ ! $answer =~ ^[Yy](es)?$ ]] && exit 0
     touch $FIRST_CLEAN
+}
+
+add_existing_formulae() {
+    echo 'Scanning for installed formulae...'
+    for formula in $(brew list); do
+        local parent_formulae=$(brew uses --installed $formula)
+        if [[ ! -z $parent_formulae ]]; then
+            echo "${formula} is automatically installed by"
+            for parent_formula in $parent_formulae; do
+                echo "  - ${parent_formula}"
+            done
+        fi
+        echo -en "Do you want to add \x1B[1;32m${formula}\x1B[0m to the world? [y/N] "
+        read answer
+        [[ $answer =~ ^[Yy]$ ]] && add $formula
+    done
 }
 
 [ ! -f $WORLD ] && touch $WORLD
