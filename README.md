@@ -7,6 +7,10 @@ Homebrew World keeps track of manually installed formulae, and safely clean orph
 brew tap axesd9/world
 ```
 ## Migration Steps
+### Interactive
+* [Create the world](#add-formulae-to-the-world-interactively)
+* [Clean the world](#manually-clean-orphaned-dependencies)
+### Manual
 * Create a file which contains all installed formulae
 ```
 brew list > ~/new-world
@@ -46,7 +50,11 @@ brew world delete <formula>
 ```
 brew world clean
 ```
-### Delete all formulae from the world, and reset the first clean flag
+### Add formulae to the world interactively
+```
+brew world create
+```
+### Delete all formulae from the world
 ```
 brew world destroy
 ```

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 WORLD=${HOMEBREW_PREFIX}/var/world
-FIRST_CLEAN=${WORLD}.checked
 
 list() {
     COLUMNS=1 column $WORLD
@@ -33,35 +32,13 @@ uninstall() {
 }
 
 clean() {
-    [ ! -f $FIRST_CLEAN ] && first_clean
     local ORPHANS=$(diff $WORLD <(brew leaves | sed -E 's/.*\/(.*)/\1/') | awk '/^>/{print $2}')
     if [ ! -z "$ORPHANS" ]; then
         brew uninstall $(echo -n $ORPHANS) && clean
     fi
 }
 
-destroy() {
-    rm -f $WORLD $FIRST_CLEAN
-}
-
-help() {
-  echo 'Example Usage:'
-  echo '  brew world install FORMULA...'
-  echo '  brew world uninstall FORMULA...'
-  echo '  brew world list'
-  echo '  brew world add FORMULA...'
-  echo '  brew world delete FORMULA...'
-  echo '  brew world clean'
-  echo '  brew world destroy'
-  echo '  brew world help'
-}
-
-error() {
-    echo -e "\x1B[31mError:\x1B[0m Unknown command: $1" >&2
-    return 1
-}
-
-first_clean() {
+create() {
     if [ -s $WORLD ]; then
         echo -n 'The world already exists, do you want to keep it? [Y/n] '
         read answer
@@ -80,7 +57,28 @@ first_clean() {
         read answer
         [[ $answer =~ ^[Yy]$ ]] && add $formula
     done
-    touch $FIRST_CLEAN
+    return 0
+}
+
+destroy() {
+    rm -f $WORLD
+}
+
+help() {
+  echo 'Example Usage:'
+  echo '  brew world install FORMULA...'
+  echo '  brew world uninstall FORMULA...'
+  echo '  brew world list'
+  echo '  brew world add FORMULA...'
+  echo '  brew world delete FORMULA...'
+  echo '  brew world clean'
+  echo '  brew world destroy'
+  echo '  brew world help'
+}
+
+error() {
+    echo -e "\x1B[31mError:\x1B[0m $1" >&2
+    return 1
 }
 
 [ ! -f $WORLD ] && touch $WORLD
@@ -98,10 +96,12 @@ case $1 in
         uninstall "${@:2}" ;;
     clean)
         clean ;;
+    create)
+        create ;;
     destroy)
         destroy ;;
     help|'')
         help ;;
     *)
-        error $1 ;;
+        error "Unknown command: $1" ;;
 esac
