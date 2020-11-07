@@ -7,7 +7,7 @@ list() {
 }
 
 add() {
-    local BREW_LIST=$(brew list)
+    local BREW_LIST=$(brew list --formulae)
     for name in "$@"; do
         local full_name=$(brew list --versions $name | awk '{print $1}')
         [ ! -z $full_name ] && [[ $BREW_LIST =~ ${full_name}([[:space:]]|$) ]] && echo $full_name >> $WORLD
@@ -45,7 +45,7 @@ create() {
         [[ $answer =~ ^[Nn]$ ]] && : > $WORLD
     fi
     echo 'Scanning for installed formulae...'
-    for formula in $(diff $WORLD <(brew list) | awk '/^>/{print $2}'); do
+    for formula in $(diff $WORLD <(brew list --formulae) | awk '/^>/{print $2}'); do
         local parent_formulae=$(brew uses --installed $formula)
         if [[ ! -z $parent_formulae ]]; then
             echo -e "\x1B[1;32m${formula}\x1B[0m is automatically installed by"
@@ -72,6 +72,7 @@ help() {
   echo '  brew world add FORMULA...'
   echo '  brew world delete FORMULA...'
   echo '  brew world clean'
+  echo '  brew world create'
   echo '  brew world destroy'
   echo '  brew world help'
 }
