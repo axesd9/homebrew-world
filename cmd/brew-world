@@ -17,7 +17,7 @@ add() {
 
 delete() {
     for name in "$@"; do
-        local full_name=$(brew info $name 2>&1 | head -1 | grep -v Error | awk -F: '{print $1}'| sed -E 's/.*\/(.*)/\1/')
+        local full_name=$(brew info $name 2>&1 | head -1 | grep -v Error | awk -F: '{print $1}'| awk '{print $2}')
         [ ! -z $full_name ] && sed -i~ "/^${full_name}$/d" $WORLD
     done
     rm -f $WORLD~
